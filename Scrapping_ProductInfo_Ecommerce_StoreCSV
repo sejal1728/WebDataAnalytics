@@ -1,0 +1,33 @@
+# Install libraries
+!pip install requests beautifulsoup4 pandas
+
+# Import libraries
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+
+# Website URL
+url = "https://books.toscrape.com/"
+
+# Send request
+response = requests.get(url)
+soup = BeautifulSoup(response.text, "html.parser")
+
+# Extract book details
+data = []
+
+for book in soup.find_all("article", class_="product_pod"):
+    title = book.h3.a["title"]
+    price = book.find("p", class_="price_color").text
+    rating = book.find("p", class_="star-rating")["class"][1]
+
+    data.append([title, price, rating])
+
+# Create DataFrame
+df = pd.DataFrame(data, columns=["Title", "Price", "Rating"])
+
+# Save data in CSV
+df.to_csv("books.csv", index=False)
+
+# Display CSV data
+print(pd.read_csv("books.csv"))
