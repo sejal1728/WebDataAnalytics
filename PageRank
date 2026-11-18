@@ -1,0 +1,77 @@
+import numpy as np  
+
+# Pages  
+
+pages = ["page1", "page2", "page3", "page4"]  
+
+n = len(pages)  
+
+# Adjacency matrix (who links to whom)  
+
+# Example structure:  
+
+# page1 -> page2, page3  
+
+# page2 -> page3  
+
+# page3 -> page1, page4  
+
+# page4 -> page1, page2, page3  
+
+links = {  
+
+    "page1": ["page2", "page3"],  
+
+    "page2": ["page3"],  
+
+    "page3": ["page1", "page4"],  
+
+    "page4": ["page1", "page2", "page3"]  
+
+}  
+
+  
+
+# Create transition probability matrix  
+
+M = np.zeros((n, n))    
+
+for i, p in enumerate(pages):  
+
+    if links[p]:  
+
+        prob = 1 / len(links[p])  
+
+        for q in links[p]:  
+
+            j = pages.index(q)  
+
+            M[j][i] = prob  
+
+  
+
+# PageRank parameters  
+
+damping = 0.85  
+
+iterations = 100  
+
+  
+
+rank = np.ones(n) / n  # Start with equal rank  
+
+  
+
+# Random walk / iterative update  
+
+for _ in range(iterations):  
+
+    rank = (1 - damping) / n + damping * M @ rank  
+
+  
+
+# Show final PageRank  
+
+for i, p in enumerate(pages):  
+
+    print(f"{p}: {rank[i]:.4f}")
