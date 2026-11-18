@@ -1,0 +1,62 @@
+#Step 1: Install libraries 
+
+!pip install pandas textblob matplotlib wordcloud 
+
+#Step 2: Import dependencies 
+
+import pandas as pd 
+from textblob import TextBlob 
+import matplotlib.pyplot as plt 
+from wordcloud import WordCloud 
+
+#Step 3: Sample product review dataset (you can replace with scraped data) 
+
+reviews = [ 
+    "This phone has excellent battery life and amazing camera quality!", 
+    "Worst experience ever. The product stopped working after two days.", 
+    "Pretty decent for the price, but could be better.", 
+    "Absolutely love it! Worth every penny.", 
+    "The packaging was poor but the product works fine.", 
+    "Not satisfied with the sound quality.", 
+    "Super fast delivery and great build quality!", 
+    "Terrible customer support. I won’t buy again.", 
+    "Average product. Okay for casual use.", 
+    "Best purchase of the year! Totally recommended." 
+] 
+
+#Step 4: Create DataFrame 
+
+df = pd.DataFrame(reviews, columns=['Review']) 
+
+#Step 5: Perform Sentiment Analysis using TextBlob 
+
+def get_sentiment(review): 
+    analysis = TextBlob(review) 
+    polarity = analysis.sentiment.polarity 
+ 
+    if polarity > 0.1: 
+        return "Positive" 
+    elif polarity < -0.1: 
+        return "Negative" 
+    else: 
+        return "Neutral" 
+ 
+df['Sentiment'] = df['Review'].apply(get_sentiment) 
+
+#Step 6: Display results 
+
+print("Sample Sentiment Analysis Results:\n") 
+print(df) 
+ 
+
+#Step 7: Count plot of sentiments 
+
+sentiment_counts = df['Sentiment'].value_counts() 
+ 
+plt.figure(figsize=(5,4)) 
+sentiment_counts.plot(kind='bar', color=['green','red','gray']) 
+ 
+plt.title("Sentiment Distribution of Reviews") 
+plt.xlabel("Sentiment") 
+plt.ylabel("Count") 
+plt.show() 
