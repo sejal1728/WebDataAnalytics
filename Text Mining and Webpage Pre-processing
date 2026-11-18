@@ -1,0 +1,166 @@
+!pip install requests beautifulsoup4 pandas  
+
+# Import libraries  
+
+import requests  
+
+from bs4 import BeautifulSoup  
+
+import pandas as pd  
+
+import re  
+
+
+# 1. Fetch Webpages  
+
+urls = [  
+
+    "https://www.wikipedia.org/",  
+
+    "https://www.python.org/",  
+
+    "https://www.openai.com/"  
+
+]  
+
+  
+
+data = []  
+
+  
+
+# 2. Extract Meta Information  
+
+for url in urls:  
+
+    try:  
+
+        response = requests.get(url, timeout=10)  
+
+        soup = BeautifulSoup(response.text, "html.parser")  
+
+  
+
+        # Extract title  
+
+        title = soup.title.string if soup.title else ""  
+
+  
+
+        # Extract meta description  
+
+        description = ""  
+
+        desc_tag = soup.find("meta", attrs={"name": "description"})  
+
+        if desc_tag:  
+
+            description = desc_tag.get("content", "")  
+
+  
+
+        # Extract meta keywords  
+
+        keywords = ""  
+
+        keyword_tag = soup.find("meta", attrs={"name": "keywords"})  
+
+        if keyword_tag:  
+
+            keywords = keyword_tag.get("content", "")  
+
+  
+
+        data.append({  
+
+            "URL": url,  
+
+            "Title": title,  
+
+            "Description": description,  
+
+            "Keywords": keywords  
+
+        })  
+
+  
+
+    except Exception as e:  
+
+        print(f"Error fetching {url}: {e}")  
+
+  
+
+# Convert to DataFrame  
+
+df = pd.DataFrame(data)  
+
+  
+
+print("Extracted Meta Information:")  
+
+display(df)  
+
+  
+
+# 3. Text Preprocessing  
+
+def clean_text(text):  
+
+    text = text.lower()  # lowercase  
+
+    text = re.sub(r'[^a-z0-9\s]', '', text)  # remove special chars  
+
+    text = re.sub(r'\s+', ' ', text).strip()  # remove extra spaces  
+
+    return text  
+
+  
+
+df["Clean_Title"] = df["Title"].apply(clean_text)  
+
+df["Clean_Description"] = df["Description"].apply(clean_text)  
+
+df["Clean_Keywords"] = df["Keywords"].apply(clean_text)  
+
+  
+
+print("After Preprocessing:")  
+
+display(df)  
+
+  
+
+# 4. Basic Text Mining  
+
+# Combine text fields  
+
+df["Combined_Text"] = (  
+
+    df["Clean_Title"] + " " +  
+
+    df["Clean_Description"] + " " +  
+
+    df["Clean_Keywords"]  
+
+)  
+
+  
+
+# Word Frequency  
+
+from collections import Counter  
+
+  
+
+all_words = " ".join(df["Combined_Text"]).split()  
+
+word_freq = Counter(all_words)  
+
+  
+
+print("Top 10 Frequent Words in Meta Information:")  
+
+print(word_freq.most_common(10)) 
+
+ 
